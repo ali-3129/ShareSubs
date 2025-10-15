@@ -1,5 +1,5 @@
 from bootstrap import user_observer, role_observer
-from core import AccountFactory
+from core.manager import AccountFactory
 
 
 class User:
