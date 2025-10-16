@@ -1,5 +1,8 @@
 from core.common import AccountDb, Observer, Logger, UserDb, UserRollDb, RoleDb
-db = AccountDb()
+from container import Container
+
+container = Container()
+db = container.get_singleton(AccountDb)
 account_observer = Observer()
 logger = Logger()
 account_observer.attach(logger)

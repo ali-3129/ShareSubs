@@ -1,4 +1,4 @@
-from bootstrap import user_observer, role_observer
+from bootstrap import user_observer, role_observer, container
 from core.manager import AccountFactory
 
 
@@ -18,7 +18,7 @@ class User:
         return obj
 
     async def create_account(self, name, status):
-        account = await AccountFactory(name, status, self)
+        account = container.get_scoped(AccountFactory, name, self.id, status, self)
         return account
     
     async def add_role(self, role):
