@@ -1,7 +1,7 @@
 import asyncio
 
 from core import User, Role, UserRole
-from bootstrap import db
+from bootstrap.bootstrap import db
 
 async def main():
     #ali = await Account.create("ali", "open")

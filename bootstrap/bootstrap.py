@@ -1,5 +1,5 @@
 from core.common import AccountDb, Logger, UserDb, UserRollDb, RoleDb, AccountObserver, UserObserver, UserRoleObserver, RoleObserver
-from container import Container
+from container.container import Container
 
 container = Container()
 logger = container.get_singleton(Logger)

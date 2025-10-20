@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from bootstrap import account_observer
+from bootstrap.bootstrap import account_observer
 
 
 class Account(ABC):

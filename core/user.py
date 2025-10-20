@@ -1,4 +1,4 @@
-from bootstrap import user_observer, role_observer, container
+from bootstrap.bootstrap import user_observer, role_observer, container
 from core.manager import AccountFactory
 
 

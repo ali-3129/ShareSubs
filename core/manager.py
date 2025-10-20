@@ -1,5 +1,5 @@
 from core.account import Account
-from bootstrap import user_role_observer
+from bootstrap.bootstrap import user_role_observer
 
 class AccountFactory:
     def __init__(self, name, status, user):
