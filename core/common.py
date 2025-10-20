@@ -26,23 +26,6 @@ class Db(ABC):
         print(f"\n{self.db}\n")
 
 
-class Logger:
-    async def update(self, obj, field, value):
-        print(f"value {value} in {field} added")
-
-
-class Observer:
-    def __init__(self):
-        self.observers = []
-
-    def attach(self, observer):
-        self.observers.append(observer)
-
-    async def notify(self, obj, field, value):
-        for observer in self.observers:
-            
-            await observer.update(obj, field, value)
-
 
 class AccountDb(Db):
 
@@ -118,27 +101,41 @@ class UserAccountDb(Db):
             "user": None,
             "account": None
         }
+    
 
-db = AccountDb()
-observer = Observer()
-logger = Logger()
-observer.attach(logger)
-observer.attach(db)
+class Logger:
+    async def update(self, obj, field, value):
+        print(f"value {value} in {field} added")
 
-user_logger = Logger()
-user_db = UserDb()
-user_observer = Observer()
-user_observer.attach(user_db)
-user_observer.attach(user_logger)
 
-user_role_db = UserRollDb()
-user_role_observer = Observer()
-user_role_observer.attach(user_role_db)
-user_role_logger = Logger()
-user_role_observer.attach(user_role_logger)
+class Observer(ABC):
+    def __init__(self):
+        self.observers = []
 
-role_logger = Logger()
-role_db = RoleDb()
-role_observer = Observer()
-role_observer.attach(role_db)
-role_observer.attach(role_logger)
+    def attach(self, observer):
+        self.observers.append(observer)
+
+    async def notify(self, obj, field, value):
+        for observer in self.observers:
+            
+            await observer.update(obj, field, value)
+
+
+class AccountObserver(Observer):
+    def __init__(self):
+        super().__init__()
+
+
+class UserObserver(Observer):
+    def __init__(self):
+        super().__init__()
+
+
+class UserRoleObserver(Observer):
+    def __init__(self):
+        super().__init__()
+
+
+class RoleObserver(Observer):
+    def __init__(self):
+        super().__init__()

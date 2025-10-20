@@ -18,7 +18,7 @@ class User:
         return obj
 
     async def create_account(self, name, status):
-        account = container.get_scoped(AccountFactory, name, self.id, status, self)
+        account = AccountFactory.create (name, self.id, status, self)
         return account
     
     async def add_role(self, role):
