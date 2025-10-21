@@ -9,8 +9,9 @@ async def main():
 
     user = await User.create("ali", 23)
     #await user.add_role("admin")
+    await user.create_account("namw", "ope")
     role = await Role.create("employee", "public")
-    userrole = await UserRole.create(user, role)
+    #userrole = await UserRole.create(user, role)
 
     db.get_data()
 

@@ -1,5 +1,5 @@
 from core.account import Account
-from bootstrap.bootstrap import user_role_observer
+from bootstrap.bootstrap import user_role_observer, container
 
 class AccountFactory:
     def __init__(self, name, status, user):
@@ -7,12 +7,13 @@ class AccountFactory:
         self.status = status
         self.user = user
 
-
-    async def create(self):
-        account = await Account.create(self.name, self.status)
-        user_role = await UserRole.create(self.user, "admin")
+    @staticmethod
+    async def create(**kwargs):
+        
+        account = await container.get_factory(Account, **kwargs)
+        user_role = await container.get_factory(UserRole, role="public", user=kwargs["user"])
         await account.add_user_admin(user_role)
-        admin_user_account = await AdminUserAccount.create(user_role, account)
+        admin_user_account = await container.get_factory(AdminUserAccount, role_user=user_role, account=account, user=kwargs["user"])
         return admin_user_account
 
 
@@ -20,16 +21,16 @@ class AccountFactory:
 
 class UserRole:
     user_role_id = 0
-    def __init__(self, user, role="public"):
+    def __init__(self, **kwargs):
         UserRole.user_role_id += 1
-        self.role = role
-        self.user = user
+        self.role = kwargs["role"]
+        self.user = kwargs["user"]
         
     @classmethod
-    async def create(cls, user, role="public"):
-        obj = cls(user, role="public")
-        await user_role_observer.notify(obj, "role", role)
-        await user_role_observer.notify(obj, "user", user)
+    async def create(cls, **kwargs):
+        obj = cls(**kwargs)
+        await user_role_observer.notify(obj, "role", kwargs["role"])
+        await user_role_observer.notify(obj, "user", kwargs["user"])
         return obj
     
     def get_id(self):
@@ -44,14 +45,15 @@ class UserAccount:
 
 class AdminUserAccount:
     aua_id = 0
-    def __init__(self, user_role, account):
-        self.user_role = user_role
-        self.account = account
+    def __init__(self, **kwargs):
+        self.user_role = kwargs["role_user"]
+        self.account = kwargs["account"]
+        self.user = kwargs["user"]
         AdminUserAccount.aua_id += 1
         self.id = self.aua_id
 
     @classmethod
-    async def create(cls, user_role, account):
-        obj = cls(user_role, account)
+    async def create(cls, **kwargs):
+        obj = cls(**kwargs)
 
         return obj

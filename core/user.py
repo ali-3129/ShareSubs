@@ -16,9 +16,10 @@ class User:
         await user_observer.notify(obj, "name", name)
         await user_observer.notify(obj, "age", age)
         return obj
+    
 
     async def create_account(self, name, status):
-        account = AccountFactory.create (name, self.id, status, self)
+        account = await container.get_factory(AccountFactory, user=self, name=name, status=status)
         return account
     
     async def add_role(self, role):
@@ -73,7 +74,3 @@ class AddOption:
 
 class Subtract:
     pass
-
-
-
-

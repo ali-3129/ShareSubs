@@ -19,16 +19,16 @@ class Container:
         else:
             return self.__scoped__[cls]
         
-    async def get_factory(self, cls, name, id, status, instance=None, *args):
+    async def get_factory(self, cls, **kwargs):
         if cls not in self.__scoped__:
-            self.__scoped__[cls] = {}
-        if id not in self.__factory__[cls]:
+            self.__factory__[cls] = {}
+        if kwargs["user"] not in self.__factory__[cls]:
                 if hasattr(cls, "create") and callable(getattr(cls, "create")):
-                    self.__factory__[cls][id] = await cls.create(name, id, status)
+                    self.__factory__[cls][kwargs["user"]] = await cls.create(**kwargs)
                 else:
-                    self.__factory__[cls][id] = cls(name, id, status)
+                    self.__factory__[cls][kwargs["user"]] = cls(**kwargs)
 
-        return self.__factory__[cls][id]
+        return self.__factory__[cls][kwargs["user"]]
     
     def get_transient(self, cls):
         return cls()

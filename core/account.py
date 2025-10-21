@@ -6,17 +6,17 @@ class Account(ABC):
     account_id = 0
     account_roles = dict()
 
-    def __init__(self, name, status, user):
-        self.name = name
-        self.status = status
+    def __init__(self, **kwargs):
+        self.name = kwargs["name"]
+        self.status = kwargs["status"]
         Account.account_id += 1
         self.id = Account.account_id
 
     @classmethod
-    async def create(cls, name, status):
-        obj = cls(name, status)
-        await account_observer.notify(value=name, field="name", obj=obj)
-        await account_observer.notify(value=status, field="status", obj=obj)
+    async def create(cls, **kwargs):
+        obj = cls(**kwargs)
+        await account_observer.notify(value=kwargs["name"], field="name", obj=obj)
+        await account_observer.notify(value=kwargs["status"], field="status", obj=obj)
         return obj
     async def add_user_admin(self, admin):
         await account_observer.notify(self, "admins", admin)
