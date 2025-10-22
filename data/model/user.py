@@ -1,20 +1,21 @@
-from bootstrap.bootstrap import user_observer, role_observer, container
-from core.manager import AccountFactory
 
+from business.controller.manager import AccountFactory
+from infrastructure import container
 
 class User:
     user_id = 0
 
-    def __init__(self, name, age):
+    def __init__(self, name, age, observer):
         self.user_name = name
         self.age = age
         self.id = User.user_id + 1
+        self.observer = observer
     
     @classmethod
-    async def create(cls, name, age):
+    async def create(cls, name, age, observer):
         obj = cls(name, age)
-        await user_observer.notify(obj, "name", name)
-        await user_observer.notify(obj, "age", age)
+        await observer.notify(obj, "name", name)
+        await observer.notify(obj, "age", age)
         return obj
     
 
@@ -23,10 +24,10 @@ class User:
         return account
     
     async def add_role(self, role):
-        await user_observer.notify(self, "roles", role)
+        await self.observer.notify(self, "roles", role)
     
     async def add_account(self, account):
-        await user_observer.notify(self, "accounts", account)
+        await self.observer.notify(self, "accounts", account)
 
     def get_id(self):
         return self.id
@@ -35,28 +36,29 @@ class User:
 class Role:
     role_id = 0
 
-    def __init__(self, name, role):
+    def __init__(self, name, role, observer):
         Role.role_id += 1
         self.id = Role.role_id
         self.name = name
         self.role = role
+        self.observer = observer
 
     @classmethod
-    async def create(cls, name, role):
+    async def create(cls, name, role, observer):
         obj = cls(name, role)
-        await role_observer.notify(obj, "name", name)
-        await role_observer.notify(obj, "role", role)
+        await observer.notify(obj, "name", name)
+        await observer.notify(obj, "role", role)
         return obj
 
     async def add_option(self, option, quantity):
-        await role_observer.notify(self, "options", option)
-        await role_observer.notify(self, "quantitys", quantity)
+        await self.observer.notify(self, "options", option)
+        await self.observer.notify(self, "quantitys", quantity)
 
     def get_id(self):
         return self.id
     
     async def change_to_admin(self):
-        await role_observer.notify(self, "role", "admin")
+        await self.observer.notify(self, "role", "admin")
 
 
 class SendOption:

@@ -1,10 +1,9 @@
-from core.common import AccountDb, Logger, UserDb, UserRollDb, RoleDb, AccountObserver, UserObserver, UserRoleObserver, RoleObserver
-from container.container import Container
+from .common import Logger, RoleObserver, AccountObserver, UserRoleObserver, UserObserver
+from .container import Container
 
 container = Container()
 logger = container.get_singleton(Logger)
 
-db = container.get_singleton(AccountDb)
 account_observer = container.get_scoped(AccountObserver)
 account_observer.attach(logger)
 account_observer.attach(db)

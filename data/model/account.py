@@ -1,34 +1,35 @@
 from abc import ABC, abstractmethod
-from bootstrap.bootstrap import account_observer
+
 
 
 class Account(ABC):
     account_id = 0
     account_roles = dict()
 
-    def __init__(self, **kwargs):
+    def __init__(self, observer , **kwargs):
         self.name = kwargs["name"]
         self.status = kwargs["status"]
+        self.observer = observer
         Account.account_id += 1
         self.id = Account.account_id
 
     @classmethod
-    async def create(cls, **kwargs):
+    async def create(cls, observer, **kwargs, ):
         obj = cls(**kwargs)
-        await account_observer.notify(value=kwargs["name"], field="name", obj=obj)
-        await account_observer.notify(value=kwargs["status"], field="status", obj=obj)
+        await observer.notify(value=kwargs["name"], field="name", obj=obj)
+        await observer.notify(value=kwargs["status"], field="status", obj=obj)
         return obj
     async def add_user_admin(self, admin):
-        await account_observer.notify(self, "admins", admin)
+        await self.observer.notify(self, "admins", admin)
 
     async def add_wallet(self, wallet):
-        await account_observer.notify(self, "wallet", wallet)
+        await self.observer.notify(self, "wallet", wallet)
 
     async def add_user(self, user):
-        await account_observer.notify(self, "users", user)
+        await self.observer.notify(self, "users", user)
 
     async def add_subscription(self, subscription):
-        await account_observer.notify(self, "subscriptions", subscription)
+        await self.observer.notify(self, "subscriptions", subscription)
 
     def get_id(self):
         return self.id
