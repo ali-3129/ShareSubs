@@ -24,7 +24,7 @@ class Container:
             self.__factory__[cls] = {}
         if kwargs["user"] not in self.__factory__[cls]:
                 if hasattr(cls, "create") and callable(getattr(cls, "create")):
-                    self.__factory__[cls][kwargs["user"]] = await cls.create(**kwargs)
+                    self.__factory__[cls][kwargs["user"]] = await cls.create( **kwargs)
                 else:
                     self.__factory__[cls][kwargs["user"]] = cls(**kwargs)
 

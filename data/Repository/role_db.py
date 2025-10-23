@@ -1,5 +1,5 @@
 from .db import Db
-from infrastructure import container
+from infrastructure.bootstrap import container, user_role_observer, role_observer
 class RoleDb(Db):
     @staticmethod
     def get_branch():
@@ -28,3 +28,6 @@ class UserRollDb(Db):
 
 user_role_db = container.get_singleton(UserRollDb)
 role_db = container.get_singleton(RoleDb)
+user_role_observer.attach(user_role_db)
+role_observer.attach(role_db)
+

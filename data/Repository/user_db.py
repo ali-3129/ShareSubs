@@ -1,5 +1,5 @@
-from db import Db
-from infrastructure import container
+from .db import Db
+from infrastructure.bootstrap import container, user_observer
 
 class UserDb(Db):
 
@@ -18,3 +18,5 @@ class UserDb(Db):
     }
 
 user_db = container.get_singleton(UserDb)
+user_observer.attach(user_db)
+

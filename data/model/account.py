@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 
 
 
@@ -6,16 +6,17 @@ class Account(ABC):
     account_id = 0
     account_roles = dict()
 
-    def __init__(self, observer , **kwargs):
+    def __init__(self, **kwargs):
         self.name = kwargs["name"]
         self.status = kwargs["status"]
-        self.observer = observer
+        self.observer = kwargs["observer"]
         Account.account_id += 1
         self.id = Account.account_id
 
     @classmethod
-    async def create(cls, observer, **kwargs, ):
+    async def create(cls, **kwargs):
         obj = cls(**kwargs)
+        observer = kwargs["observer"]
         await observer.notify(value=kwargs["name"], field="name", obj=obj)
         await observer.notify(value=kwargs["status"], field="status", obj=obj)
         return obj

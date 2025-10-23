@@ -1,5 +1,5 @@
 from .db import Db
-from infrastructure import container
+from infrastructure.bootstrap import container, account_observer
 
 class AccountDb(Db):
 
@@ -20,3 +20,4 @@ class AccountDb(Db):
 
 
 account_db = container.get_singleton(AccountDb)
+account_observer.attach(account_db)

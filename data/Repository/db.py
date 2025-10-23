@@ -23,3 +23,5 @@ class Db(ABC):
 
     def get_data(self):
         print(f"\n{self.db}\n")
+
+db =Db()

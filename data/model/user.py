@@ -1,33 +1,30 @@
 
-from business.controller.manager import AccountFactory
-from infrastructure import container
-
 class User:
     user_id = 0
 
-    def __init__(self, name, age, observer):
-        self.user_name = name
-        self.age = age
+    def __init__(self, **kwargs):
+        self.user_name = kwargs["name"]
+        self.age = kwargs["age"]
         self.id = User.user_id + 1
-        self.observer = observer
+        self.observer = kwargs["observer"]
     
     @classmethod
-    async def create(cls, name, age, observer):
-        obj = cls(name, age)
-        await observer.notify(obj, "name", name)
-        await observer.notify(obj, "age", age)
+    async def create(cls, **kwargs):
+        obj = cls(**kwargs)
+        observer = kwargs["observer"]
+        await observer.notify(obj, "name", kwargs["name"])
+        await observer.notify(obj, "age", kwargs["age"])
         return obj
     
 
-    async def create_account(self, name, status):
-        account = await container.get_factory(AccountFactory, user=self, name=name, status=status)
-        return account
+    async def create_account(self, account):
+        await self.observer.notify(self, "account", account)
     
     async def add_role(self, role):
         await self.observer.notify(self, "roles", role)
     
-    async def add_account(self, account):
-        await self.observer.notify(self, "accounts", account)
+    # async def add_account(self, account):
+    #     await self.observer.notify(self, "accounts", account)
 
     def get_id(self):
         return self.id
@@ -36,18 +33,19 @@ class User:
 class Role:
     role_id = 0
 
-    def __init__(self, name, role, observer):
+    def __init__(self, **kwargs):
         Role.role_id += 1
         self.id = Role.role_id
-        self.name = name
-        self.role = role
-        self.observer = observer
+        self.name = kwargs["name"]
+        self.role = kwargs["role"]
+        self.observer = kwargs["observer"]
 
     @classmethod
-    async def create(cls, name, role, observer):
-        obj = cls(name, role)
-        await observer.notify(obj, "name", name)
-        await observer.notify(obj, "role", role)
+    async def create(cls, **kwargs):
+        obj = cls(**kwargs)
+        observer = kwargs["observer"]
+        await observer.notify(obj, "name", kwargs["name"])
+        await observer.notify(obj, "role", kwargs["role"])
         return obj
 
     async def add_option(self, option, quantity):
