@@ -1,45 +1,44 @@
+
 from infrastructure.bootstrap import container
-from data.Repository.account_db import account_observer
 from data.Repository.user_db import user_observer
-from business import Account
-from infrastructure.bootstrap import container, user_role_observer, role_observer
+from data.Repository.account_db import account_observer
+from data.Repository.role_db import role_observer, user_role_observer
 from data.model.account import Account
 from data.model.user import User, Role
-from business.controller.service import UserService
-from business.controller.handler import UserHandler
 from abc import ABC
 import asyncio
 
 
 class Factory(ABC):
 
-    @staticmethod
-    def create():
+    def create(self):
         pass
 
 
 class AccountFactory(Factory):
 
-    @staticmethod
-    async def create(name, status):
+    async def create(self, name, status):
         account = await container.get_factory(Account, name=name, status=status, observer=account_observer)
         return account
 
 
 class UserFactory(Factory):
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
 
-    @staticmethod
-    async def create(name, age):
-        user = await container.get_factory(User, name=name, age=age, observer=user_observer)
-        service = container.get_factory(UserService, user=user)
-        handler = container.get_factory(UserHandler, service=service)
+    async def create(self):
+        from business import UserService, UserHandler
+        user = await container.get_factory(User, user=self, name=self.name, age=self.age, observer=user_observer)
+        service = await container.get_factory(UserService, user=user)
+        handler = await container.get_factory(UserHandler, service=service, user=user)
         return handler
     
 
 class RoleFactory(Factory):
 
-    @staticmethod
-    async def create(name, role):
+    
+    async def create(self, name, role):
         role = await container.get_factory(Role, name=name, role=role, observer=role_observer)
         return role
 

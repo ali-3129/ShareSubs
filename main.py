@@ -7,10 +7,10 @@ from data.Repository.db import db
 async def main():
     #ali = await Account.create("ali", "open")
     #await ali.add_wallet("wal")
-
-    user = await UserFactory.create("ali", 23)
+    user = UserFactory(name="ali", age=23)
+    account = await user.create()
     #await user.add_role("admin")
-    await user.create_account("namw", "ope")
+    # ''
     #role = await Role.create("employee", "public")
     #userrole = await UserRole.create(user, role)
 

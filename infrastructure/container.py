@@ -20,7 +20,7 @@ class Container:
             return self.__scoped__[cls]
         
     async def get_factory(self, cls, **kwargs):
-        if cls not in self.__scoped__:
+        if cls not in self.__factory__:
             self.__factory__[cls] = {}
         if kwargs["user"] not in self.__factory__[cls]:
                 if hasattr(cls, "create") and callable(getattr(cls, "create")):

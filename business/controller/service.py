@@ -1,5 +1,5 @@
 from abc import ABC
-from business.model.factories import AdminUserAccountFactory
+from business import AdminUserAccountFactory
 
 
 class Service(ABC):
