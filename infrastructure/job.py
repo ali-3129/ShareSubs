@@ -2,7 +2,6 @@ import asyncio
 from asyncio import Queue
 from dataclasses import dataclass, field
 from typing import ClassVar, DefaultDict
-from uuid import uuid4, uuid5
 from collections import defaultdict
 SENTINEL = object()
 
@@ -13,16 +12,22 @@ async def db_worker(qeue : asyncio.Queue, name : str):
             break
         else:
             try:
-                var = Task.get_data()
-                print(var)
-                instance = var[job]["instance"]
-                print(instance)
-                await instance.update(**var[job])
+                if Task.get_done_task(job):
+                    continue
+                else:
+                    var = Task.get_data()
+                    #print(var)
+                    instance = var[job]["instance"]
+                    #print(instance)
+                    await instance.update(**var[job])
                 
             except:
                 print(f"Error by {type(instance).__name__}")
             finally:
                 qeue.task_done()
+                Task.add_to_done(job)
+                print(f"job: {job} is done and losed")
+                Task.del_task(job)
 
 @dataclass
 class Task:
@@ -31,13 +36,12 @@ class Task:
     obj : any
     field_name : str
     value : any
-    tasks = defaultdict(list)
+    tasks : ClassVar[dict] = defaultdict(list)
     task : dict = field(default_factory=dict)
-
+    done_list : ClassVar[list] = []
 
     def __post_init__(self):
         self.task = {"instance": self.instance, "obj": self.obj, "field": self.field_name, "value": self.value}
-
         Task.tasks[self.task_id] = self.task
 
     
@@ -45,6 +49,24 @@ class Task:
     def get_data():
         #print(Task.tasks)
         return Task.tasks
+    
+    @staticmethod
+    def add_to_done(task_id):
+        Task.done_list.append(task_id)
+    
+    @staticmethod
+    def get_done_task(id):
+        if id in Task.done_list:
+            return True
+        return False
+    
+    @staticmethod
+    def del_task(id):
+        from .bootstrap import container
+        try:
+            container.del_task(id)
+        except:
+            pass
 
 
 async def producer(qeue):

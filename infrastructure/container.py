@@ -42,3 +42,7 @@ class Container:
     
     def get_transient(self, cls):
         return cls()
+    
+    def del_task(self, task_id):
+        if task_id in self.__task__["task_id"]:
+            del self.__task__["task_id"]
