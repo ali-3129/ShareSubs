@@ -23,7 +23,10 @@ async def main():
     await producer(qeue)
     await qeue.join()
     worker.cancel()
-    await asyncio.gather(worker)
+    try:
+        await asyncio.gather(worker)
+    except:
+        pass
     db.get_data()
 
 

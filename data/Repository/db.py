@@ -11,7 +11,10 @@ class Db(ABC):
     def get_branch():
         pass
 
-    async def update(self, obj, field, value):
+    async def update(self, **kwargs):
+        obj = kwargs["obj"]
+        field = kwargs["field"]
+        value = kwargs["value"]
         id = obj.get_id()
         if id not in Db.db[self.get_branch()]:
             Db.db[self.get_branch()][id] = self.shema()

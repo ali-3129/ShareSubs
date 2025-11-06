@@ -14,7 +14,9 @@ async def db_worker(qeue : asyncio.Queue, name : str):
         else:
             try:
                 var = Task.get_data()
+                print(var)
                 instance = var[job]["instance"]
+                print(instance)
                 await instance.update(**var[job])
                 
             except:
@@ -35,13 +37,13 @@ class Task:
 
     def __post_init__(self):
         self.task = {"instance": self.instance, "obj": self.obj, "field": self.field_name, "value": self.value}
-        if self.task_id not in Task.tasks:
-            Task.tasks[self.task_id] = {}
-        else:
-            Task.tasks[self.task_id].append(self.task)
+
+        Task.tasks[self.task_id] = self.task
+
     
     @staticmethod
     def get_data():
+        #print(Task.tasks)
         return Task.tasks
 
 
