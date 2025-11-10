@@ -21,6 +21,7 @@ class Observer(ABC):
             if type(observer).__name__ in job:
                 from .bootstrap import container
                 task = container.get_task(cls=Task, instance=observer, obj=obj, field_name=field, value=value, task_id=get_uniq_id(field))
+
             else:
                 await observer.update(obj, field, value)
 

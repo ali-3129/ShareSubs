@@ -15,3 +15,5 @@ user_role_observer.attach(logger)
 
 role_observer = container.get_scoped(RoleObserver)
 role_observer.attach(logger)
+
+SENTINEL = object()

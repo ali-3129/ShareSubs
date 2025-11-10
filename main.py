@@ -4,6 +4,7 @@ from asyncio import run, Queue
 #from business import User
 from business.model.factories import UserFactory
 from data.Repository.db import db
+from infrastructure.bootstrap import SENTINEL
 
 async def main():
 
@@ -22,11 +23,13 @@ async def main():
     worker = asyncio.create_task(db_worker(qeue, "worker1"))
     await producer(qeue)
     await qeue.join()
+    #await qeue.put(SENTINEL)
     worker.cancel()
     try:
         await asyncio.gather(worker)
     except:
         pass
+
     db.get_data()
 
 
