@@ -1,18 +1,18 @@
 import asyncio
-from asyncio import Queue
+from asyncio import Queue, timeout
 from dataclasses import dataclass, field
 from typing import ClassVar, DefaultDict
 from collections import defaultdict
 import random
 from time import sleep
-async def po(instance, **kwargs):
-    await asyncio.sleep(7)
-    await instance.update(**kwargs)
+
+
 
 async def retry(instance, max_try : int =5, max_delay=20, base_delay=5.0, **kwargs ):
     for attempt in range(1, max_try + 1):
        try:
-            return await asyncio.wait_for(po(instance ,**kwargs), timeout=base_delay)
+            print("touch")
+            return await attempt_run(base_delay, instance , **kwargs)
        except:
            print("timeout try")
            if attempt == max_try or base_delay >= max_delay:
@@ -24,37 +24,52 @@ async def retry(instance, max_try : int =5, max_delay=20, base_delay=5.0, **kwar
            await asyncio.sleep(jitter)
     
 
+async def attempt_run(delay, instance, **kwargs):
+
+    async with timeout(delay):
+
+        print("touched")
+        return await po(instance, **kwargs)
+
+async def safe_run(instance, **kwargs):
+    from .bootstrap import sem
+    async with sem:
+        return await retry(instance,**kwargs)
+
+async def po(instance, **kwargs):
+    await asyncio.sleep(7)
+    print("toucccc")
+    await instance.update(**kwargs)
+
 
 
 async def db_worker(qeue : asyncio.Queue, name : str):
-   from .bootstrap import SENTINEL
-   while True:
-        job = await qeue.get()
-        if job is SENTINEL:
-            qeue.task_done()
-            break
-        else:
-            try:
-                if Task.get_done_task(job):
-                    qeue.task_done()
-                    continue
-                else:
-                    var = Task.get_data()
-                    instance = var[job]["instance"]
-                    #print(instance)
-                    field = var[job]["field"]
-                    obj = var[job]["obj"]
-                    value = var[job]["value"]
-                    await retry(instance, field=field, obj=obj, value=value)
-
-            except:
-                print(f"Error by {type(instance).__name__}")
-            finally:
-                
-                Task.add_to_done(job)
-                print(f"job: {job} is done and losed")
+   from .bootstrap import shot_down
+   while not shot_down.is_set():
+        try:
+            job = await asyncio.wait_for(qeue.get(), timeout=0.5)
+        except TimeoutError:
+            continue
+        try:
+            if Task.get_done_task(job):
                 qeue.task_done()
-                Task.del_task(job)
+                continue
+            else:
+                var = Task.get_data()
+                instance = var[job]["instance"]
+                #print(instance)
+                field = var[job]["field"]
+                obj = var[job]["obj"]
+                value = var[job]["value"]
+                await safe_run(instance, field=field, obj=obj, value=value)
+        except:
+            print(f"Error by {type(instance).__name__}")
+        finally:
+            
+            Task.add_to_done(job)
+            print(f"job: {job} is done and losed")
+            qeue.task_done()
+            Task.del_task(job)
 
 @dataclass
 class Task:

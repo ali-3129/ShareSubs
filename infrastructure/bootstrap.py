@@ -1,5 +1,6 @@
 from .common import Logger, RoleObserver, AccountObserver, UserRoleObserver, UserObserver
 from .container import Container
+import asyncio
 
 container = Container()
 logger = container.get_singleton(Logger)
@@ -15,5 +16,5 @@ user_role_observer.attach(logger)
 
 role_observer = container.get_scoped(RoleObserver)
 role_observer.attach(logger)
-
-SENTINEL = object()
+sem = asyncio.Semaphore(5)
+shot_down = asyncio.Event()
