@@ -1,4 +1,4 @@
-from .common import Logger, RoleObserver, AccountObserver, UserRoleObserver, UserObserver
+from .common import Logger, RoleObserver, AccountObserver, UserRoleObserver, UserObserver, Metric
 from .container import Container
 import asyncio
 
@@ -18,3 +18,4 @@ role_observer = container.get_scoped(RoleObserver)
 role_observer.attach(logger)
 sem = asyncio.Semaphore(5)
 shot_down = asyncio.Event()
+metric = Metric()

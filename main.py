@@ -5,7 +5,7 @@ from asyncio import run, Queue
 #from business import User
 from business.model.factories import UserFactory
 from data.Repository.db import db
-from infrastructure.bootstrap import shot_down
+from infrastructure.bootstrap import shot_down, metric
 
 async def main():
 
@@ -37,6 +37,7 @@ async def main():
 
 
     db.get_data()
+    print(metric.get_all())
 
 
 asyncio.run(main())

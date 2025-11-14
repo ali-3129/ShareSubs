@@ -1,6 +1,8 @@
 import asyncio
 from asyncio import Queue, timeout
+from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
+import time
 from typing import ClassVar, DefaultDict
 from collections import defaultdict
 import random
@@ -8,13 +10,14 @@ from time import sleep
 
 
 
-async def retry(instance, max_try : int =5, max_delay=20, base_delay=5.0, **kwargs ):
+async def retry(job, instance, max_try : int =5, max_delay=20, base_delay=5.0, **kwargs ):
     for attempt in range(1, max_try + 1):
        try:
             print("touch")
             return await attempt_run(base_delay, instance , **kwargs)
        except:
-           print("timeout try")
+           from .bootstrap import metric
+           metric.inc(f"attempt_{job}")
            if attempt == max_try or base_delay >= max_delay:
                print(attempt)
                raise
@@ -31,10 +34,10 @@ async def attempt_run(delay, instance, **kwargs):
         print("touched")
         return await po(instance, **kwargs)
 
-async def safe_run(instance, **kwargs):
+async def safe_run(job, instance, **kwargs):
     from .bootstrap import sem
     async with sem:
-        return await retry(instance,**kwargs)
+        return await retry(job, instance,**kwargs)
 
 async def po(instance, **kwargs):
     await asyncio.sleep(7)
@@ -50,26 +53,28 @@ async def db_worker(qeue : asyncio.Queue, name : str):
             job = await asyncio.wait_for(qeue.get(), timeout=0.5)
         except TimeoutError:
             continue
-        try:
-            if Task.get_done_task(job):
+        async with masure(job):
+            try:
+                
+                if Task.get_done_task(job):
+                    qeue.task_done()
+                    continue
+                else:
+                    var = Task.get_data()
+                    instance = var[job]["instance"]
+                    #print(instance)
+                    field = var[job]["field"]
+                    obj = var[job]["obj"]
+                    value = var[job]["value"]
+                    await safe_run(job, instance, field=field, obj=obj, value=value)
+            except:
+                print(f"Error by {type(instance).__name__}")
+            finally:
+                
+                Task.add_to_done(job)
+                print(f"job: {job} is done and losed")
                 qeue.task_done()
-                continue
-            else:
-                var = Task.get_data()
-                instance = var[job]["instance"]
-                #print(instance)
-                field = var[job]["field"]
-                obj = var[job]["obj"]
-                value = var[job]["value"]
-                await safe_run(instance, field=field, obj=obj, value=value)
-        except:
-            print(f"Error by {type(instance).__name__}")
-        finally:
-            
-            Task.add_to_done(job)
-            print(f"job: {job} is done and losed")
-            qeue.task_done()
-            Task.del_task(job)
+                Task.del_task(job)
 
 @dataclass
 class Task:
@@ -110,6 +115,19 @@ class Task:
         except:
             pass
 
+@asynccontextmanager
+async def masure(job : str):
+    from .bootstrap import metric
+    start = time.perf_counter()
+
+    try:
+        yield
+        duration = time.perf_counter() - start
+        metric.inc(f"attempt_{job}")
+        metric.dauration(f"duration_{job}", duration)
+    except:
+        metric.inc(f"faild_{job}")
+        raise
 
 async def producer(qeue):
     try:

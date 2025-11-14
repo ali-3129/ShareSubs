@@ -1,11 +1,37 @@
 import asyncio
 from uuid import uuid4, uuid5
 from abc import ABC
-from .job import Task
+import time
+from collections import defaultdict
+
+class Metric:
+    def __init__(self):
+        self.start = time.perf_counter()
+        self.duration = defaultdict(float)
+        self.counter = defaultdict(int)
+
+    
+    def inc(self, key, amount=1):
+        self.counter[key] += 1
+    
+    
+    def dauration(self, key, time):
+        self.duration[key] += time
+    
+    def get_all(self):
+        uptime = time.perf_counter() - self.start
+        return {
+            "count": dict(self.counter),
+            "duration": dict(self.duration),
+            "uptime": uptime
+        }
+
+
 
 class Logger:
     async def update(self, obj, field, value):
         print(f"value {value} in {field} added")
+
 
 
 class Observer(ABC):
@@ -16,6 +42,7 @@ class Observer(ABC):
         self.observers.append(observer)
 
     async def notify(self, obj, field, value):
+        from .job import Task
         job = ("UserDb", "User", "Role", "UserRole", "UserAccount")
         for observer in self.observers:
             if type(observer).__name__ in job:
