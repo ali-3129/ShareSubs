@@ -6,9 +6,18 @@ from asyncio import run, Queue
 from business.model.factories import UserFactory
 from data.Repository.db import db
 from infrastructure.bootstrap import shot_down, metric
+from fastapi import FastAPI
+from presentation.api.v1.routes.health import router as heals_router
+
+def api():
+    api = FastAPI()
+    api.include_router(heals_router )
+    return api
+
+
+app = api()
 
 async def main():
-
 
     #ali = await Account.create("ali", "open")
     #await ali.add_wallet("wal")
@@ -40,4 +49,4 @@ async def main():
     print(metric.get_all())
 
 
-asyncio.run(main())
+#asyncio.run(main())
