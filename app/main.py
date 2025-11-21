@@ -8,10 +8,12 @@ from data.Repository.db import db
 from infrastructure.bootstrap import shot_down, metric
 from fastapi import FastAPI
 from presentation.api.v1.routes.health import router as heals_router
+from presentation.api.v1.routes.handler import router as user_router
 
 def api():
     api = FastAPI()
-    api.include_router(heals_router )
+    api.include_router(heals_router)
+    api.include_router(user_router)
     return api
 
 
