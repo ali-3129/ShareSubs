@@ -1,6 +1,7 @@
 from .common import Logger, RoleObserver, AccountObserver, UserRoleObserver, UserObserver, Metric
 from .container import Container
 import asyncio
+from asyncio import Queue
 
 container = Container()
 logger = container.get_singleton(Logger)
@@ -19,3 +20,4 @@ role_observer.attach(logger)
 sem = asyncio.Semaphore(5)
 shot_down = asyncio.Event()
 metric = Metric()
+qeue = Queue()

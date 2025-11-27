@@ -40,7 +40,7 @@ async def safe_run(job, instance, **kwargs):
         return await retry(job, instance,**kwargs)
 
 async def po(instance, **kwargs):
-    await asyncio.sleep(7)
+    await asyncio.sleep(1)
     print("toucccc")
     await instance.update(**kwargs)
 
@@ -50,6 +50,7 @@ async def db_worker(qeue : asyncio.Queue, name : str):
    from .bootstrap import shot_down
    while not shot_down.is_set():
         try:
+            
             job = await asyncio.wait_for(qeue.get(), timeout=0.5)
         except TimeoutError:
             continue
@@ -86,15 +87,19 @@ class Task:
     tasks : ClassVar[dict] = defaultdict(list)
     task : dict = field(default_factory=dict)
     done_list : ClassVar[list] = []
+    
 
     def __post_init__(self):
+        from .bootstrap import qeue
         self.task = {"instance": self.instance, "obj": self.obj, "field": self.field_name, "value": self.value}
         Task.tasks[self.task_id] = self.task
+        asyncio.create_task(qeue.put(self.task_id))
+        print(self.task)
 
     
     @staticmethod
     def get_data():
-        #print(Task.tasks)
+        print(Task.tasks)
         return Task.tasks
     
     @staticmethod
@@ -130,8 +135,13 @@ async def masure(job : str):
         raise
 
 async def producer(qeue):
+    from .bootstrap import shot_down
+
+    tasks =Task.get_data()
     try:
-        for id in Task.get_data().keys():
+        print("id : ")
+        for id in tasks.keys():
+            print("id : ")
             await qeue.put(id)
-    except():
+    except:
         pass

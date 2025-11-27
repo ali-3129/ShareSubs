@@ -26,5 +26,10 @@ class Db(ABC):
 
     def get_data(self):
         print(f"\n{self.db}\n")
+    
+
+    async def get_user_by_id(self, id):
+         return self.db["User"]
+         
 
 db =Db()

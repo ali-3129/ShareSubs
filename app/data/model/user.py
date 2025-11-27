@@ -5,7 +5,8 @@ class User:
     def __init__(self, **kwargs):
         self.user_name = kwargs["name"]
         self.age = kwargs["age"]
-        self.id = User.user_id + 1
+        User.user_id += 1
+        self.id = User.user_id
         self.observer = kwargs["observer"]
     
     @classmethod
@@ -23,9 +24,6 @@ class User:
     async def add_role(self, role):
         await self.observer.notify(self, "roles", role)
     
-    # async def add_account(self, account):
-    #     await self.observer.notify(self, "accounts", account)
-
     def get_id(self):
         return self.id
 
