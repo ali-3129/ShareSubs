@@ -15,3 +15,6 @@ class UserHandler(Handler):
     
     def get_user_id(self):
         return self.user.get_id()
+    
+    def get_user(self):
+        return self.user

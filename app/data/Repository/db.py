@@ -29,7 +29,9 @@ class Db(ABC):
     
 
     async def get_user_by_id(self, id):
-         return self.db["User"]
+        for user_id in self.db["User"].keys():
+            if user_id == id:
+                return self.db["User"][id]
          
 
 db =Db()

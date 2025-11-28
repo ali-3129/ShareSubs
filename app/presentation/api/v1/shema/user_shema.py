@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, ConfigDict, EmailStr
 
 class UserShema(BaseModel):
     name: str
@@ -7,9 +7,9 @@ class UserShema(BaseModel):
 
 class USEResponse(BaseModel):
     id: int
-    name: str
+    user_name: str
     age: int
-
+    model_config = ConfigDict(from_attributes=True)
 
 
 
