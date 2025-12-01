@@ -6,10 +6,11 @@ from asyncio import run, Queue
 from business.model.factories import UserFactory
 from data.Repository.db import db
 from infrastructure.bootstrap import shot_down, metric, qeue
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from presentation.api.v1.routes.health import router as heals_router
 from presentation.api.v1.routes.handler import router as user_router
 from infrastructure.job import Task
+import time
 
 
 def api():
@@ -30,13 +31,18 @@ async def worker():
     ]
 
 
-    
+@app.middleware("http")
+async def log(request : Request, call_next):
+    start = time.perf_counter()
+    res = await call_next(request)
+    duration = time.perf_counter() - start
+    print(request, duration)
+    return res
 
 
 @app.on_event("shutdown")
 async def off_worker():
     await qeue.join()
-
     shot_down.set()
     for worker in app.state.workers:
         await asyncio.gather(worker)
