@@ -1,7 +1,7 @@
 from ..shema.user_shema import UserShema, USEResponse
 from business.model.factories import UserFactory
 from business.controller.admin import UserAdmin
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, Request
 
 def service():
     user_service = UserHandler()
@@ -25,12 +25,12 @@ class UserHandler:
         print(f"{body.name} is created")
 
     @staticmethod
-    async def get_user_handler(user_id:int):
+    async def get_user_handler(user_id:int, request:Request):
         from data.Repository.db import db
         res =  await db.get_user_by_id(user_id)
         if res is None:
             from infrastructure.common import raise_error
-            raise_error("User not Founded", 404, "user faild")
+            raise_error(request, "User not Founded", 404, "user faild")
             # raise HTTPException(
             #     status_code=status.HTTP_404_NOT_FOUND,
             #     detail={

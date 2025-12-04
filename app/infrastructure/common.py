@@ -2,6 +2,7 @@ import asyncio
 from uuid import uuid4, uuid5
 from abc import ABC
 import time
+from fastapi import Request
 from collections import defaultdict
 from fastapi import HTTPException
 from .logger import logger as error_logeer
@@ -27,13 +28,14 @@ class Metric:
             "uptime": uptime
         }
 
-def raise_error(code:str, status_code: int, msg: str):
-    error_logeer.warning(msg)
+def raise_error(request: Request, code:str, status_code: int, msg: str):
+    error_logeer.warning(msg, extra={"req_id":request.state.x_request_id})
     raise HTTPException(
         status_code= status_code,
         detail={
             "code": code,
-            "msg": msg
+            "msg": msg,
+            "req_id":request.state.x_request_id
         }
     )
 

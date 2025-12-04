@@ -11,6 +11,7 @@ from presentation.api.v1.routes.health import router as heals_router
 from presentation.api.v1.routes.handler import router as user_router
 from infrastructure.job import Task
 import time
+import uuid
 
 
 def api():
@@ -33,10 +34,15 @@ async def worker():
 
 @app.middleware("http")
 async def log(request : Request, call_next):
+    req_id = request.headers.get("x_request_id")
+    x_request_id = req_id or str(uuid.uuid4())
+    request.state.x_request_id = x_request_id
+
     start = time.perf_counter()
     res = await call_next(request)
     duration = time.perf_counter() - start
     print(request, duration)
+    res.headers["req_id"] = x_request_id
     return res
 
 
