@@ -1,7 +1,7 @@
 from ..shema.user_shema import UserShema, USEResponse
 from business.model.factories import UserFactory
 from business.controller.admin import UserAdmin
-from fastapi import HTTPException, status, Request
+from fastapi import HTTPException, status, Request, Cookie
 
 def service():
     user_service = UserHandler()
@@ -45,3 +45,11 @@ class UserHandler:
                 "user_name": res["name"],
                 "age": res["age"]
             }
+    
+
+async def current_user(sid : str | None = Cookie(default=None, alias="sid")):
+    if sid is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED
+        )
+    return sid
