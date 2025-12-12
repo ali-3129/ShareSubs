@@ -6,6 +6,8 @@ from fastapi import Request
 from collections import defaultdict
 from fastapi import HTTPException
 from .logger import logger as error_logeer
+
+
 class Metric:
     def __init__(self):
         self.start = time.perf_counter()
@@ -87,3 +89,5 @@ class UserRoleObserver(Observer):
 class RoleObserver(Observer):
     def __init__(self):
         super().__init__()
+
+

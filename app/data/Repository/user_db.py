@@ -1,5 +1,7 @@
 from .db import Db
 from infrastructure.bootstrap import container, user_observer
+from .db import Base
+from sqlalchemy.orm import Mapped, mapped_column
 
 class UserDb(Db):
 
@@ -20,3 +22,6 @@ class UserDb(Db):
 user_db = container.get_singleton(UserDb)
 user_observer.attach(user_db)
 
+class UserModel(Base):
+    __tablename__ = "users"
+    id : Mapped[int] = mapped_column(primary_key=True)

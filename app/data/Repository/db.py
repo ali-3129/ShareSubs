@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-
+from sqlalchemy.orm import DeclarativeBase
 
 class Db(ABC):
     db = {"Account": {}, "User": {}, "Role": {}, "UserRole": {}, "UserAccount": {}}
@@ -35,3 +35,6 @@ class Db(ABC):
          
 
 db =Db()
+
+class Base(DeclarativeBase):
+     pass

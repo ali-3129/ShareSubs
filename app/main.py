@@ -12,7 +12,8 @@ from presentation.api.v1.routes.handler import router as user_router
 from infrastructure.job import Task
 import time
 import uuid
-
+from infrastructure.bootstrap import engine
+from data.Repository.db import Base
 
 def api():
     api = FastAPI()
@@ -30,6 +31,9 @@ async def worker():
         asyncio.create_task(db_worker(qeue, "worker1")),
         asyncio.create_task(db_worker(qeue, "worker2"))
     ]
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
 
 
 @app.middleware("http")
