@@ -13,3 +13,14 @@ class USEResponse(BaseModel):
 
 
 
+class UserDbResponse(BaseModel):
+    id : int
+    name : str
+    model_config= ConfigDict(from_attributes=True)
+
+
+class UserUpdateRes(BaseModel):
+    name: str
+
+class Res(BaseModel):
+    response : str

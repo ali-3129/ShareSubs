@@ -1,5 +1,8 @@
-from .db import Db
+from .db import Db, Base
 from infrastructure.bootstrap import container, user_role_observer, role_observer
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import ForeignKey
+
 class RoleDb(Db):
     @staticmethod
     def get_branch():
@@ -31,3 +34,7 @@ role_db = container.get_singleton(RoleDb)
 user_role_observer.attach(user_role_db)
 role_observer.attach(role_db)
 
+class RoleModel(Base):
+    __tablename__ = "role"
+    name : Mapped[str] = mapped_column(primary_key=True)
+    user_id : Mapped[list["UserModel"]] = relationship(back_populates="users")

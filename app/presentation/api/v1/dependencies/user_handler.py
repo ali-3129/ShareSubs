@@ -5,7 +5,7 @@ from fastapi import HTTPException, status, Request, Cookie, Depends
 from .sesstion import get_session
 from sqlalchemy.ext.asyncio import AsyncSession
 from data.Repository.user_db import UserModel
-from sqlalchemy import select, delete
+from sqlalchemy import select, delete, update
 
 def service(session : AsyncSession = Depends(get_session)):
     user_service = UserHandler(session)
@@ -24,15 +24,6 @@ class UserHandler:
         print(id)
         
         user = a.get_user()
-        sec_user = UserModel(id=id)
-        try:
-            self.session.add(sec_user)
-            await self.session.commit()
-            await self.session.refresh(sec_user)
-        except:
-            del_op = self.session.get(UserModel, id)
-            await self.session.delete(del_op)
-            await self.session.commit()
         return user
     
 
@@ -40,7 +31,30 @@ class UserHandler:
     async def user_observer(body):
         print(f"{body.name} is created")
 
+
+    async def get_user_from_db(self, id : int, request):
+        
+        try:
+            result = await self.session.execute(select(UserModel.id, UserModel.name).where(UserModel.id==id))
+            user = result.mappings().first()
+            if user is None:
+                from infrastructure.common import raise_error
+                raise_error(request, "User not Founded", 404, "user faild")
+        except:
+            self.session.rollback()
+        return user
     
+
+    async def name_update(self, id : int, body):
+        await self.session.execute(update(UserModel).where(UserModel.id == id).values(name = body.name))
+        await self.session.commit()
+        return {"response": "ok"}
+
+    async def delete_from_db(self, user_id):
+        await self.session.execute(delete(UserModel).where(UserModel.id == user_id))
+        await self.session.commit()
+        return {"response": "ok"}
+
     async def get_user_handler(self, user_id:int, request:Request):
         from data.Repository.db import db
         res =  await db.get_user_by_id(user_id)

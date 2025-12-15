@@ -1,6 +1,6 @@
 from uuid import uuid4
 from fastapi import APIRouter, Depends, status, BackgroundTasks, Request, Cookie, Response
-from ..shema.user_shema import UserShema, USEResponse
+from ..shema.user_shema import UserShema, USEResponse, UserDbResponse, UserUpdateRes, Res
 from ..dependencies.user_handler import service, current_user
 router = APIRouter(prefix="/users" ,tags=["user"])
 
@@ -11,9 +11,22 @@ async def user_handler(body: UserShema, bg:BackgroundTasks, user_handler = Depen
     bg.add_task(user_handler.user_observer, body)
     return user 
 
+@router.post("delete/{user_id}")
+async def delete_from_db(user_id, service = Depends(service)):
+    res = await service.delete_from_db(user_id)
+    return res
+
+@router.post("db/update/{user_id}", response_model=Res)
+async def user_update(user_id: int, body:UserUpdateRes, service = Depends(service)):
+     return await service.name_update(user_id, body)
+
 @router.get("/me")
 async def me(service = Depends(current_user)):
     print(service)
+
+@router.get("db/{user_id}",response_model=UserDbResponse, status_code=status.HTTP_200_OK)
+async def get_user_from_db(request: Request, user_id: int, service = Depends(service)):
+    return await service.get_user_from_db(user_id, request)
 
 @router.get("/{user_id}", response_model=USEResponse, status_code=status.HTTP_200_OK)
 async def get_user(request: Request, user_id:int, service = Depends(service)):
