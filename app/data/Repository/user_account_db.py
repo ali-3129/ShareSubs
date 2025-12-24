@@ -1,4 +1,6 @@
-from db import Db
+from sqlalchemy import table, Table, column, Column
+from sqlalchemy import ForeignKey
+from .db import Db, Base
 
 class UserAccountDb(Db):
 
@@ -12,3 +14,12 @@ class UserAccountDb(Db):
             "user": None,
             "account": None
         }
+
+
+user_account = Table(
+    "user_account",
+    Base.metadata,
+    Column("User_id", ForeignKey("users.id"), primary_key=True),
+    Column("account_id", ForeignKey("accounts.id"), primary_key=True)
+
+)

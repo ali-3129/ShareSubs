@@ -3,6 +3,8 @@ from infrastructure.bootstrap import container, user_observer
 from .db import Base
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import ForeignKey
+from data.Repository.user_account_db import user_account
+
 
 class UserDb(Db):
 
@@ -18,15 +20,18 @@ class UserDb(Db):
             "role": None,
             "roles": [],
             "accounts": [],
-    }
+        }
+
 
 user_db = container.get_singleton(UserDb)
 user_observer.attach(user_db)
 
+
 class UserModel(Base):
-    from .role_db import RoleModel
+
     __tablename__ = "users"
-    id : Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column()
     role_name: Mapped[str] = mapped_column(ForeignKey("role.name", ondelete="CASCADE"), nullable=False, index=True)
-    role : Mapped[RoleModel] = relationship(back_populates="role")
+    role: Mapped["RoleModel"] = relationship("RoleModel", back_populates="users")
+    accounts: Mapped[list["AccountModel"]] = relationship("AccountModel", secondary=user_account, back_populates="users")
