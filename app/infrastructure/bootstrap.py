@@ -8,7 +8,7 @@ from sqlalchemy.orm import sessionmaker
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
-DB_URL = f"sqlite+aiosqlite:///{BASE_DIR}/app.db"
+DB_URL = "sqlite+aiosqlite:///C:/Users/ASUS/Desktop/ShareSubs/app/app.db"
 
 engine = create_async_engine(DB_URL)
 

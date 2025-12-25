@@ -32,8 +32,6 @@ async def worker():
         asyncio.create_task(db_worker(qeue, "worker1")),
         asyncio.create_task(db_worker(qeue, "worker2"))
     ]
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
 
 
 @app.middleware("http")
