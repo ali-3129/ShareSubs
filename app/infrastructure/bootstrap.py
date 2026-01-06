@@ -7,6 +7,10 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 
 
+SECRET_KEY = "example_key_for_training"
+ALGORITHM = "HS256"
+EXPIRE_DATE = 15
+
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 DB_URL = "sqlite+aiosqlite:///C:/Users/ASUS/Desktop/ShareSubs/app/app.db"
 

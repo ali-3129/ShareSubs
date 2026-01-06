@@ -1,7 +1,6 @@
 from abc import ABC
 
 
-
 class Account(ABC):
     account_id = 0
     account_roles = dict()
@@ -20,6 +19,7 @@ class Account(ABC):
         await observer.notify(value=kwargs["name"], field="name", obj=obj)
         await observer.notify(value=kwargs["status"], field="status", obj=obj)
         return obj
+
     async def add_user_admin(self, admin):
         await self.observer.notify(self, "admins", admin)
 

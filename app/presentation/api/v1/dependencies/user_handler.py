@@ -6,8 +6,14 @@ from fastapi import HTTPException, status, Request, Cookie, Depends
 from .sesstion import get_session
 from sqlalchemy.ext.asyncio import AsyncSession
 from data.Repository.user_db import UserModel
+from data.Repository.token import TokenModel
 from sqlalchemy import select, delete, update
 from sqlalchemy.orm import selectinload
+from infrastructure.security import create_token, get_expire_refresh_date
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from jose import jwt
+
+bearer = HTTPBearer(auto_error=False)
 
 
 def service(session: AsyncSession = Depends(get_session)):
@@ -60,6 +66,26 @@ class UserHandler:
             await self.session.rollback()
         return user
 
+    async def singin(self, body):
+        from infrastructure.security import hash_password, generate_refresh_token, hash_refresh
+        from infrastructure.bootstrap import SECRET_KEY, EXPIRE_DATE, ALGORITHM
+        passhash = hash_password(body.password)
+        user = UserModel(name=body.name,
+                         role_name=body.role_name,
+                         username=body.username, passhash=passhash)
+
+        refresh_token = generate_refresh_token()
+        hashed = hash_refresh(refresh_token)
+        expire = get_expire_refresh_date(30)
+        token_model = TokenModel(token_hash=hashed, user_name=body.username, expires_at=expire)
+        self.session.add(token_model)
+        self.session.add(user)
+        await self.session.commit()
+
+        token = create_token(body.username, SECRET_KEY, EXPIRE_DATE, ALGORITHM)
+
+        return {"access_token": token, "refresh_token": refresh_token, "token_type": "bearer"}
+
     async def name_update(self, id: int, body):
         await self.session.execute(update(UserModel).where(UserModel.id == id).values(name=body.name))
         await self.session.commit()
@@ -94,6 +120,16 @@ class UserHandler:
         users = res.scalars().all()
 
         return users
+
+    async def refresh(self, refresh_token):
+        pass
+
+
+async def get_current_user(cred: HTTPAuthorizationCredentials = Depends(bearer)):
+    from infrastructure.bootstrap import SECRET_KEY, ALGORITHM
+    token = cred.credentials
+    payload = jwt.decode(token, SECRET_KEY, ALGORITHM)
+    return payload["sub"]
 
 
 async def current_user(sid: str | None = Cookie(default=None, alias="sid")):

@@ -1,5 +1,6 @@
 from pydantic import BaseModel, ConfigDict, EmailStr
 
+
 class UserShema(BaseModel):
     name: str
     age: int
@@ -12,15 +13,22 @@ class USEResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-
 class UserDbResponse(BaseModel):
-    id : int
-    name : str
-    model_config= ConfigDict(from_attributes=True)
+    id: int
+    name: str
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UserUpdateRes(BaseModel):
     name: str
 
+
 class Res(BaseModel):
-    response : str
+    response: str
+
+
+class LoginShema(BaseModel):
+    username: EmailStr
+    password: str
+    role_name: str
+    name: str

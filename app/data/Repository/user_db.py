@@ -30,8 +30,13 @@ user_observer.attach(user_db)
 class UserModel(Base):
 
     __tablename__ = "users"
+
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    username: Mapped[str] = mapped_column(unique=True, nullable=True)
     name: Mapped[str] = mapped_column()
+    passhash: Mapped[str] = mapped_column(unique=True, nullable=True)
     role_name: Mapped[str] = mapped_column(ForeignKey("role.name", ondelete="CASCADE"), nullable=False, index=True)
     role: Mapped["RoleModel"] = relationship("RoleModel", back_populates="users")
     accounts: Mapped[list["AccountModel"]] = relationship("AccountModel", secondary=user_account, back_populates="users")
+    tokens: Mapped[list["TokenModel"]] = relationship("TokenModel", back_populates="user")
+

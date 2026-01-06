@@ -1,7 +1,7 @@
 from uuid import uuid4
 from fastapi import APIRouter, Depends, status, BackgroundTasks, Request, Cookie, Response
-from ..shema.user_shema import UserShema, USEResponse, UserDbResponse, UserUpdateRes, Res
-from ..dependencies.user_handler import service, current_user
+from ..shema.user_shema import UserShema, USEResponse, UserDbResponse, UserUpdateRes, Res, LoginShema
+from ..dependencies.user_handler import service, current_user, get_current_user
 from ..shema.account_shema import AccountResponse, AccountShema
 
 router = APIRouter(prefix="/users", tags=["user"])
@@ -36,6 +36,17 @@ async def me(service=Depends(current_user)):
     print(service)
 
 
+@router.post("/signin/auth", status_code=status.HTTP_200_OK)
+async def login_token(body: LoginShema, service=Depends(service)):
+    user = await service.singin(body)
+    return user
+
+
+@router.get("/jwt/me", status_code=status.HTTP_200_OK)
+async def auth_me(user_service=Depends(get_current_user)):
+    print(user_service)
+
+
 @router.get("db/{user_id}", response_model=UserDbResponse, status_code=status.HTTP_200_OK)
 async def get_user_from_db(request: Request, user_id: int, service=Depends(service)):
     return await service.get_user_from_db(user_id, request)
@@ -47,7 +58,7 @@ async def get_user(request: Request, user_id: int, service=Depends(service)):
 
 
 @router.get("/db/all_users")
-async def get_all_user(service =Depends(service)):
+async def get_all_user(service=Depends(service)):
     users = await service.get_all_users()
     return users
 
@@ -66,3 +77,9 @@ async def logout(response: Response, session_id: str | None = Cookie(default=Non
         print("raise")
     response.delete_cookie("sid")
     return {"status": True}
+
+
+@router.post("/auth/refresh")
+async def refresh(refresh_token: str, user_service=Depends(service)):
+    token = await user_service.refresh(refresh_token)
+    return token
