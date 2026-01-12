@@ -80,6 +80,6 @@ async def logout(response: Response, session_id: str | None = Cookie(default=Non
 
 
 @router.post("/auth/refresh")
-async def refresh(refresh_token: str, user_service=Depends(service)):
-    token = await user_service.refresh(refresh_token)
+async def refresh(refresh_token: str, request: Request, user_service=Depends(service)):
+    token = await user_service.refresh(refresh_token, request)
     return token

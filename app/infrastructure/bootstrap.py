@@ -12,7 +12,7 @@ ALGORITHM = "HS256"
 EXPIRE_DATE = 15
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
-DB_URL = "sqlite+aiosqlite:///C:/Users/ASUS/Desktop/ShareSubs/app/app.db"
+DB_URL = "sqlite+aiosqlite:///C:/Tcl/Projekt/ShareSubs/app/app.db"
 
 engine = create_async_engine(DB_URL)
 

@@ -12,8 +12,11 @@ from sqlalchemy.orm import selectinload
 from infrastructure.security import create_token, get_expire_refresh_date
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import jwt
-
+from datetime import datetime, timezone
+from infrastructure.security import hash_password, generate_refresh_token, hash_refresh
+from infrastructure.bootstrap import SECRET_KEY, EXPIRE_DATE, ALGORITHM
 bearer = HTTPBearer(auto_error=False)
+
 
 
 def service(session: AsyncSession = Depends(get_session)):
@@ -67,8 +70,7 @@ class UserHandler:
         return user
 
     async def singin(self, body):
-        from infrastructure.security import hash_password, generate_refresh_token, hash_refresh
-        from infrastructure.bootstrap import SECRET_KEY, EXPIRE_DATE, ALGORITHM
+
         passhash = hash_password(body.password)
         user = UserModel(name=body.name,
                          role_name=body.role_name,
@@ -121,8 +123,27 @@ class UserHandler:
 
         return users
 
-    async def refresh(self, refresh_token):
-        pass
+    async def refresh(self, refresh_token, request):
+        from infrastructure.security import hash_refresh
+        old_hashed = hash_refresh(refresh_token)
+        old_refresh = (await self.session.execute(select(TokenModel).where(TokenModel.token_hash==old_hashed))).scalar_one_or_none()
+        if old_refresh is None or old_refresh.revoked_at is not None:
+            from infrastructure.common import raise_error
+            raise_error(request, "User not authorized", 401, "authorization faild")
+        old_refresh.revoked_at = datetime.now(timezone.utc)
+
+        refresh_token = generate_refresh_token()
+        hashed = hash_refresh(refresh_token)
+        expire = get_expire_refresh_date(30)
+        token_model = TokenModel(token_hash=hashed, user_name=old_refresh.username, expires_at=expire)
+        self.session.add(token_model)
+
+        await self.session.commit()
+
+        token = create_token(old_refresh.username, SECRET_KEY, EXPIRE_DATE, ALGORITHM)
+
+        return {"access_token": token, "refresh_token": refresh_token, "token_type": "bearer"}
+
 
 
 async def get_current_user(cred: HTTPAuthorizationCredentials = Depends(bearer)):
