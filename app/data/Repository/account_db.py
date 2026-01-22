@@ -1,8 +1,8 @@
-from .db import Db, Base
-from infrastructure.bootstrap import container, account_observer
+from app.data.Repository.db import Db, Base
+from app.infrastructure.bootstrap import container, account_observer
 from sqlalchemy.orm import Mapped, relationship, mapped_column
 from sqlalchemy import ForeignKey
-from data.Repository.user_account_db import user_account
+from app.data.Repository.user_account_db import user_account
 
 
 class AccountDb(Db):

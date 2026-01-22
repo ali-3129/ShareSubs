@@ -1,10 +1,10 @@
 
-from infrastructure.bootstrap import container
-from data.Repository.user_db import user_observer
-from data.Repository.account_db import account_observer
-from data.Repository.role_db import role_observer, user_role_observer
-from data.model.account import Account
-from data.model.user import User, Role
+from app.infrastructure.bootstrap import container
+from app.data.Repository.user_db import user_observer
+from app.data.Repository.account_db import account_observer
+from app.data.Repository.role_db import role_observer, user_role_observer
+from app.data.model.account import Account
+from app.data.model.user import User, Role
 from abc import ABC
 import asyncio
 

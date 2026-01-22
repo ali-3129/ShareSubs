@@ -1,5 +1,5 @@
 from abc import ABC
-from data.Repository.db import db
+from app.data.Repository.db import db
 
 class Admin(ABC):
     @staticmethod

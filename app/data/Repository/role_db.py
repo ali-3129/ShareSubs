@@ -1,5 +1,5 @@
-from .db import Db, Base
-from infrastructure.bootstrap import container, user_role_observer, role_observer
+from app.data.Repository.db import Db, Base
+from app.infrastructure.bootstrap import container, user_role_observer, role_observer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import ForeignKey
 

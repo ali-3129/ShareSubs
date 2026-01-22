@@ -1,5 +1,5 @@
 from abc import ABC
-from business import AdminUserAccountFactory
+from app.business import AdminUserAccountFactory
 
 
 class Service(ABC):

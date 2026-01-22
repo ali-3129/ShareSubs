@@ -1,6 +1,6 @@
 from sqlalchemy import table, Table, column, Column
 from sqlalchemy import ForeignKey
-from .db import Db, Base
+from app.data.Repository.db import Db, Base
 
 class UserAccountDb(Db):
 

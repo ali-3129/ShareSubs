@@ -1,5 +1,5 @@
 from typing import AsyncGenerator
-from infrastructure.bootstrap import session_maker
+from app.infrastructure.bootstrap import session_maker
 from sqlalchemy.ext.asyncio import AsyncSession
 
 

@@ -1,9 +1,9 @@
-from .db import Db
-from infrastructure.bootstrap import container, user_observer
-from .db import Base
+from app.data.Repository.db import Db
+from app.infrastructure.bootstrap import container, user_observer
+from app.data.Repository.db import Base
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import ForeignKey
-from data.Repository.user_account_db import user_account
+from app.data.Repository.user_account_db import user_account
 
 
 class UserDb(Db):
