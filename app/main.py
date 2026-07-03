@@ -14,7 +14,13 @@ import time
 import uuid
 from app.infrastructure.bootstrap import engine
 from app.data.Repository.db import Base
+from contextlib import asynccontextmanager
 
+@asynccontextmanager
+async def life_span(app: FastAPI):
+    worker()
+    yield
+    off_worker()
 
 def api():
     api = FastAPI()
@@ -26,7 +32,6 @@ def api():
 app = api()
 
 
-@app.on_event("startup")
 async def worker():
     app.state.workers = [
         asyncio.create_task(db_worker(qeue, "worker1")),
@@ -48,7 +53,6 @@ async def log(request: Request, call_next):
     return res
 
 
-@app.on_event("shutdown")
 async def off_worker():
     await qeue.join()
     shot_down.set()

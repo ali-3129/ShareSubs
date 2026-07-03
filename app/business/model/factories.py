@@ -28,7 +28,7 @@ class UserFactory(Factory):
         self.age = age
 
     async def create(self):
-        from business import UserService, UserHandler
+        from app.business import UserService, UserHandler
         user = await container.get_factory(User, user=self, name=self.name, age=self.age, observer=user_observer)
         service = await container.get_factory(UserService, user=user)
         handler = await container.get_factory(UserHandler, service=service, user=user)

@@ -147,7 +147,7 @@ class UserHandler:
 
 
 async def get_current_user(cred: HTTPAuthorizationCredentials = Depends(bearer)):
-    from infrastructure.bootstrap import SECRET_KEY, ALGORITHM
+    from app.infrastructure.bootstrap import SECRET_KEY, ALGORITHM
     token = cred.credentials
     payload = jwt.decode(token, SECRET_KEY, ALGORITHM)
     return payload["sub"]
