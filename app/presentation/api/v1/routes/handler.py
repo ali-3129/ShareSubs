@@ -1,6 +1,6 @@
 from uuid import uuid4
 from fastapi import APIRouter, Depends, status, BackgroundTasks, Request, Cookie, Response
-from ..shema.user_shema import UserShema, USEResponse, UserDbResponse, UserUpdateRes, Res, LoginShema
+from ..shema.user_shema import TokenRes, UserShema, USEResponse, UserDbResponse, UserUpdateRes, Res, LoginShema
 from ..dependencies.user_handler import service, current_user, get_current_user
 from ..shema.account_shema import AccountResponse, AccountShema
 
@@ -26,14 +26,15 @@ async def delete_from_db(user_id, service=Depends(service)):
     return res
 
 
-@router.post("db/update/{user_id}", response_model=Res)
+@router.patch("/db/update/{user_id}", response_model=Res)
 async def user_update(user_id: int, body: UserUpdateRes, service=Depends(service)):
     return await service.name_update(user_id, body)
 
 
-@router.get("/me")
-async def me(service=Depends(current_user)):
-    print(service)
+@router.get("/me", response_model=TokenRes)
+async def me(service=Depends(get_current_user)):
+
+    return service
 
 
 @router.post("/signin/auth", status_code=status.HTTP_200_OK)

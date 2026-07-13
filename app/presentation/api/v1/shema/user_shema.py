@@ -1,9 +1,10 @@
-from pydantic import BaseModel, ConfigDict, EmailStr
+
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
 class UserShema(BaseModel):
     name: str
-    age: int
+    age: int = Field(ge=18)
 
 
 class USEResponse(BaseModel):
@@ -32,3 +33,7 @@ class LoginShema(BaseModel):
     password: str
     role_name: str
     name: str
+
+
+class TokenRes(BaseModel):
+    sub: str

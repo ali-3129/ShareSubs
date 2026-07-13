@@ -11,7 +11,7 @@ from sqlalchemy import select, delete, update
 from sqlalchemy.orm import selectinload
 from app.infrastructure.security import create_token, get_expire_refresh_date
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from jose import jwt
+from jose import ExpiredSignatureError, JWTError, jwt
 from datetime import datetime, timezone
 from app.infrastructure.security import hash_password, generate_refresh_token, hash_refresh
 from app.infrastructure.bootstrap import SECRET_KEY, EXPIRE_DATE, ALGORITHM
@@ -54,20 +54,25 @@ class UserHandler:
         print(account.users[0].name)
 
     @staticmethod
-    async def user_observer(body):
+    def user_observer(body):
         print(f"{body.name} is created")
 
     async def get_user_from_db(self, id: int, request):
 
         try:
-            result = await self.session.execute(select(UserModel.id, UserModel.name).where(UserModel.id == id))
-            user = result.mappings().first()
+            result = result = await self.session.execute(
+            select(UserModel).where(UserModel.id == id)
+        )
+
+            user = result.scalar_one_or_none()
             if user is None:
-                from infrastructure.common import raise_error
-                raise_error(request, "User not Founded", 404, "user faild")
-        except:
+                
+                raise ValueError("user faild")
+            return user
+        except Exception:
             await self.session.rollback()
-        return user
+            raise
+        
 
     async def singin(self, body):
 
@@ -148,9 +153,23 @@ class UserHandler:
 
 async def get_current_user(cred: HTTPAuthorizationCredentials = Depends(bearer)):
     from app.infrastructure.bootstrap import SECRET_KEY, ALGORITHM
-    token = cred.credentials
-    payload = jwt.decode(token, SECRET_KEY, ALGORITHM)
-    return payload["sub"]
+    
+    try:
+        token = cred.credentials
+        payload = jwt.decode(token, SECRET_KEY, ALGORITHM)
+        return {"sub": payload["sub"]}
+    
+    except ExpiredSignatureError:
+        raise HTTPException(
+            status_code=401,
+            detail="Token expired"
+        )
+    except JWTError:
+        raise HTTPException(
+            status_code=401,
+            detail="invalid Token"
+        )
+
 
 
 async def current_user(sid: str | None = Cookie(default=None, alias="sid")):

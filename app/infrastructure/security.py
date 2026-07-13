@@ -29,7 +29,7 @@ def create_token(sub: str, secret_key: str, expire_date: int, algorithm: str) ->
     payload = {
         "sub": sub,
         "iat": now.timestamp(),
-        "expire": (now + timedelta(minutes=expire_date)).timestamp()
+        "exp": (now + timedelta(minutes=expire_date)).timestamp()
     }
     return jwt.encode(payload, secret_key, algorithm=algorithm)
 
